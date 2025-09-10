@@ -1,0 +1,24 @@
+variables:
+  SONAR_MAVEN_GOAL: org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.1.2184:sonar
+  SONAR_USER_HOME: /cache/sonar
+
+default:
+  tags:
+    - 'for:container-image'
+  image:
+    name: $DOCKER_URL/ch/ge/cti/build/alpine-maven-git-node:6
+
+# Cache downloaded dependencies and plugins between builds.
+cache:
+  untracked: true
+  key: "$CI_PROJECT_ID"
+  paths:
+    - .m2/repository
+
+stages:
+  - build
+
+build_main:
+  stage: build
+  script:
+    - mvn $MAVEN_CLI_OPTS clean verify $SONAR_MAVEN_GOAL -Dsonar.host.url=$SONARQUBE_URL
